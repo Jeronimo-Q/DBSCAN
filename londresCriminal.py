@@ -45,7 +45,8 @@ Data = Data.dropna(subset=['Latitude','Longitude','Crime ID'])
 
 print('Dimensiones finales:', Data.shape)
 
-
+Data['Crime type'] = Data['Crime type'].str.strip()
+Data['LSOA name'] = Data['LSOA name'].str.strip()
 Data['Crime type'] = Data['Crime type'].str.lower()
 Data['LSOA name'] = Data['LSOA name'].str.lower()
 
