@@ -29,6 +29,7 @@ print('-------------------------------------------------------------------------
 print("Valores Duplicados")
 duplicated = Data.duplicated().sum()
 print(duplicated)
+Data = Data.drop_duplicates()
 
 print('----------------------------------------------------------------------------')
 print("Resumen descriptivo de los datos")
@@ -40,6 +41,12 @@ print('-------------------------------------------------------------------------
 print('----------------------------------------------------------------------------')
 print("Eliminación de registros incompletos")
 print('Dimensiones iniciales:', Data.shape)
-Data = Data.dropna(subset=['Latitude', 'Longitude'])
-Data = Data.dropna(subset=['Crime ID'])
+Data = Data.dropna(subset=['Latitude','Longitude','Crime ID'])
+
 print('Dimensiones finales:', Data.shape)
+
+
+Data['Crime type'] = Data['Crime type'].str.lower()
+Data['LSOA name'] = Data['LSOA name'].str.lower()
+
+print(Data.head())
