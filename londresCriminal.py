@@ -1,11 +1,24 @@
 import pandas as pd
 
-Data = pd.read_csv("london_crime_by_lsoa.csv")
+Data = pd.read_csv("2023-01-avon-and-somerset-street.csv")
 print("Primeros 5 Registros")
 print(Data.head())
+
+Data = Data.drop(
+    columns=[
+        'Context',
+        'Last outcome category',
+        'Reported by',
+        'Falls within',
+        'Location'
+    ],
+    errors='ignore'
+)
 print('----------------------------------------------------------------------------')
 print("Número de filas, columnas y tipo de datos")
 print(Data.info())
+
+
 
 print('----------------------------------------------------------------------------')
 print("Valores faltantes por columna:")
@@ -16,7 +29,6 @@ print('-------------------------------------------------------------------------
 print("Valores Duplicados")
 duplicated = Data.duplicated().sum()
 print(duplicated)
-#No existen registros duplicados por lo que no se tienen que eliminar
 
 print('----------------------------------------------------------------------------')
 print("Resumen descriptivo de los datos")
@@ -28,5 +40,6 @@ print('-------------------------------------------------------------------------
 print('----------------------------------------------------------------------------')
 print("Eliminación de registros incompletos")
 print('Dimensiones iniciales:', Data.shape)
-Data = Data.dropna()
-print('Dimensiones finales: ', Data.shape)
+Data = Data.dropna(subset=['Latitude', 'Longitude'])
+Data = Data.dropna(subset=['Crime ID'])
+print('Dimensiones finales:', Data.shape)
