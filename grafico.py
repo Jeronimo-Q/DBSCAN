@@ -9,3 +9,12 @@ def generateHeatmap(Data):
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.show()
+    
+def generateDiagramaBarras(data):
+    crime_counts = data['Crime type'].value_counts().head(10)
+    plt.figure(figsize=(10,6))
+    sns.barplot(x=crime_counts.values, y=crime_counts.index, palette="viridis")
+    plt.title("Top 10 tipos de crímenes")
+    plt.xlabel("Número de incidentes")
+    plt.ylabel("Tipo de crimen")
+    plt.show()
