@@ -77,7 +77,7 @@ def cleanData():
     ruta = "2023-01-avon-and-somerset-street.csv"
 
     Data = cargar_datos(ruta)
-
+    explorar_datos(Data)
     Data = eliminar_columnas(Data)
     explorar_datos(Data)
     Data = outliers(Data)
