@@ -1,4 +1,3 @@
-# Importar librerías necesarias
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
@@ -9,66 +8,92 @@ from sklearn.preprocessing import LabelEncoder
 def entrenar_arbol(data):
 
     le_lsoa = LabelEncoder()
+    le_crime = LabelEncoder()
 
-    #Eliminar los puntos de ruido que DBSCAN marcó con -1
+    # Crear Month_num
     data["Month_num"] = data["Month"].str[-2:].astype(int)
-    data["LSOA_code_encoded"] = le_lsoa.fit_transform(data["LSOA code"])
 
+    # Codificar variables categóricas
+    data["LSOA_code_encoded"] = le_lsoa.fit_transform(data["LSOA code"])
+    data["Crime_type_encoded"] = le_crime.fit_transform(data["Crime type"])
+
+    # Eliminar ruido (-1)
     data_filtrada = data[data['Cluster'] != -1]
 
-    #Seleccionar variables de entrada (Latitude y Longitude)
-    X = data_filtrada[['Latitude', 'Longitude','Month_num', 'LSOA_code_encoded']]
+    # Variables de entrada
+    X = data_filtrada[['Latitude', 'Longitude', 'Month_num',
+                       'LSOA_code_encoded', 'Crime_type_encoded']]
 
-    #Seleccionar la variable objetivo (el cluster asignado por DBSCAN)
+    # Variable objetivo
     y = data_filtrada['Cluster']
 
-    #Dividir los datos en entrenamiento (70%) y prueba (30%)
+    # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42
     )
 
-    #Crear el modelo del árbol de decisión
+    # Modelo
     modelo = DecisionTreeClassifier(
-        criterion='entropy',   # Usa entropía para medir pureza
-        max_depth=5,           # Limita la profundidad del árbol (más simple e interpretable) evitando el sobreajuste
-        random_state=42        # Fija semilla para reproducibilidad
+        criterion='entropy',
+        max_depth=5,
+        random_state=42
     )
 
-    #Entrenar el modelo con los datos de entrenamiento
     modelo.fit(X_train, y_train)
-
-    #Realizar predicciones sobre el conjunto de prueba
     y_pred = modelo.predict(X_test)
 
-    #Evaluar el modelo con distintas métricas
+    # --- MÉTRICAS ---
     print("Reporte de Clasificación:\n")
-    print(classification_report(y_test, y_pred))  # Precisión, Recall y F1 por clase
+    print(classification_report(y_test, y_pred))
     print("Precisión del modelo:", round(accuracy_score(y_test, y_pred) * 100, 2), "%")
 
     print("Matriz de Confusión:")
-    print(confusion_matrix(y_test, y_pred))  # Compara clases reales vs predichas
+    print(confusion_matrix(y_test, y_pred))
 
+    # ----- Gráfico con métricas -----
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred, output_dict=True)
+
+    macro_f1 = report["macro avg"]["f1-score"]
+    macro_precision = report["macro avg"]["precision"]
+    macro_recall = report["macro avg"]["recall"]
+
+    weighted_f1 = report["weighted avg"]["f1-score"]
+    weighted_precision = report["weighted avg"]["precision"]
+    weighted_recall = report["weighted avg"]["recall"]
+
+    plt.figure(figsize=(7, 4))
+    textstr = (
+        f"Accuracy: {accuracy:.4f}\n"
+        f"Macro Avg → Prec: {macro_precision:.2f} | Rec: {macro_recall:.2f} | F1: {macro_f1:.2f}\n"
+        f"Weighted Avg → Prec: {weighted_precision:.2f} | Rec: {weighted_recall:.2f} | F1: {weighted_f1:.2f}"
+    )
+
+    plt.text(0.01, 0.5, textstr, fontsize=12, verticalalignment='center',
+             bbox=dict(facecolor='lightgrey', alpha=0.3, boxstyle='round,pad=1'))
+    plt.axis('off')
+    plt.title("Métricas del Modelo de Árbol de Decisión")
+    plt.tight_layout()
+    plt.show()
+
+    # ----- Importancia de variables -----
     feature_importances = pd.DataFrame({
         "Variable": X.columns,
         "Importancia": modelo.feature_importances_
     }).sort_values(by="Importancia", ascending=False)
 
-    print ("\nImportancia de las variables:")
-    print (feature_importances)
+    print("\nImportancia de las variables:")
+    print(feature_importances)
 
-    #Visualizar el árbol entrenado
-    plt.figure(figsize=(18, 10))
-    plot_tree(
-        modelo,
-        feature_names=['Latitude', 'Longitude','Month_num', 'LSOA code'],  # Variables usadas
-        class_names=[str(c) for c in modelo.classes_],  # Nombres de clases (clusters)
-        filled=True,       # Colorea nodos
-        rounded=True,      # Bordes redondeados
-        fontsize=9, 
-        max_depth=3       # Tamaño de texto
-    )
-    plt.title("Árbol de Decisión - Clasificación de Zonas de Crimen")
+    plt.figure(figsize=(10, 6))
+    plt.barh(feature_importances["Variable"], feature_importances["Importancia"])
+    plt.xlabel("Importancia")
+    plt.ylabel("Variable")
+    plt.title("Importancia de Variables en el Árbol de Decisión")
+    plt.gca().invert_yaxis()
+    plt.grid(axis='x', linestyle='--', alpha=0.6)
+    plt.tight_layout()
     plt.show()
 
-    #Devolver el modelo entrenado para uso posterior
+    # Devolver modelo ya entrenado
     return modelo
