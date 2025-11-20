@@ -1,5 +1,5 @@
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 def cargar_datos(ruta):
 
@@ -72,21 +72,111 @@ def normalizar_texto(data):
     data['LSOA name'] = data['LSOA name'].str.strip().str.lower()
     return data
 
+import matplotlib.pyplot as plt
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def grafico_dispersion_ultra(data_antes, data_despues):
+
+    plt.figure(figsize=(9,8))
+
+    # Estilo base elegante
+    plt.style.use('seaborn-v0_8-darkgrid')
+
+    # Colores pastel profesionales
+    azul_pastel = "#5DADE2"
+    rojo_pastel = "#EC7063"
+
+    # --- CAPA SUAVE DE FONDO (GLOW) ---
+    plt.scatter(
+        data_antes['Longitude'],
+        data_antes['Latitude'],
+        s=25,
+        c=azul_pastel,
+        alpha=0.07,
+        linewidths=0,
+    )
+    plt.scatter(
+        data_despues['Longitude'],
+        data_despues['Latitude'],
+        s=25,
+        c=rojo_pastel,
+        alpha=0.07,
+        linewidths=0,
+    )
+
+    # --- PUNTOS PRINCIPALES CON ESTÉTICA PREMIUM ---
+    plt.scatter(
+        data_antes['Longitude'],
+        data_antes['Latitude'],
+        s=10,
+        c=azul_pastel,
+        alpha=0.55,
+        edgecolor='none',
+        label='Antes de la limpieza'
+    )
+    plt.scatter(
+        data_despues['Longitude'],
+        data_despues['Latitude'],
+        s=10,
+        c=rojo_pastel,
+        alpha=0.55,
+        edgecolor='none',
+        label='Después de la limpieza'
+    )
+
+    # Título estilizado
+    plt.title(
+        "Comparación Visual del Dataset\nAntes y Después del Proceso de Limpieza",
+        fontsize=18,
+        fontweight='bold',
+        pad=15
+    )
+
+    # Etiquetas elegantes
+    plt.xlabel("Longitude", fontsize=14)
+    plt.ylabel("Latitude", fontsize=14)
+
+    # Cuadrícula suave
+    plt.grid(True, linestyle='--', alpha=0.3)
+
+    # Leyenda estilo tarjeta
+    legend = plt.legend(
+        frameon=True,
+        fontsize=12,
+        fancybox=True,
+        shadow=True,
+        borderpad=1
+    )
+    legend.get_frame().set_facecolor('#F8F9F9')
+    legend.get_frame().set_edgecolor('#D5D8DC')
+
+    plt.tight_layout()
+
+    plt.savefig("results/dispersion.jpg", dpi=350, bbox_inches='tight')
+    plt.show()
+
+
+
 
 def cleanData():
     ruta = "2023-01-avon-and-somerset-street.csv"
 
-    Data = cargar_datos(ruta)
-    explorar_datos(Data)
-    Data = eliminar_columnas(Data)
+    DataO = cargar_datos(ruta)
+    explorar_datos(DataO)
+    Data = eliminar_columnas(DataO)
     explorar_datos(Data)
     Data = outliers(Data)
     Data = normalizar_texto(Data)
     print("Primeros registros del dataset limpio:")
     print(Data.head())
+    grafico_dispersion_ultra(DataO, Data)
     return Data
     #Data.to_csv("Crimes_UK_Clean.csv", index=False)
     #print("Dataset limpio guardado como 'Crimes_UK_Clean.csv'")
+
+cleanData()
 
 
 

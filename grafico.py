@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
 def generateHeatmap(Data):
@@ -10,6 +11,7 @@ def generateHeatmap(Data):
     plt.xlabel("Longitud")
     plt.ylabel("Latitud")
     plt.savefig("results/heatmap_crimenes.png")
+
     plt.show()
 
 
@@ -47,5 +49,41 @@ def generateDiagramaBarras(data):
     plt.title("Top 10 tipos de crímenes")
     plt.xlabel("Número de incidentes")
     plt.ylabel("Tipo de crimen")
-    plt.show()
     plt.savefig("results/diagrama_barras_crimenes.png")
+    plt.show()
+
+
+
+def graficar_metricas_dbscan_arbol( y_test, y_pred):
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
+    recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
+    f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
+    print("accuracy:",accuracy)
+    print("precision:",precision)
+    print("recall:",recall)
+    print("f1:",f1)
+
+    metricas = [accuracy, precision, recall, f1]
+    nombres = ["Accuracy", "Precision", "Recall", "F1"]
+
+    sns.set_theme(style="whitegrid")
+    plt.figure(figsize=(8,5))
+
+    palette = sns.color_palette("coolwarm", len(metricas))
+
+    ax = sns.barplot(x=nombres, y=metricas, palette=palette)
+
+    for i, v in enumerate(metricas):
+        ax.text(i, v + 0.02, f"{v:.2f}", ha='center', fontsize=12, fontweight='bold')
+
+    plt.ylim(0, 1.1)
+    plt.title("Métricas del Árbol de Decisión", fontsize=16, fontweight='bold')
+    plt.ylabel("Valor", fontsize=12)
+    plt.xlabel("")
+
+    sns.despine(left=True, bottom=True)
+
+    plt.tight_layout()
+    plt.savefig("results/metricas_modelos.png", dpi=300)
+    plt.show()
